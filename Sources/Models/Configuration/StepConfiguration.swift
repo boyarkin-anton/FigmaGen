@@ -5,6 +5,7 @@
 //
 
 import Foundation
+import PathKit
 
 struct StepConfiguration: Decodable {
 
@@ -19,7 +20,7 @@ struct StepConfiguration: Decodable {
 
     // MARK: - Instance Methods
 
-    func resolve(baseConfiguration: BaseConfiguration?) -> StepConfiguration {
+    func resolve(baseConfiguration: BaseConfiguration?, basePath: Path) -> StepConfiguration {
         guard let baseConfiguration = baseConfiguration else {
             return self
         }
@@ -29,8 +30,8 @@ struct StepConfiguration: Decodable {
             accessToken: accessToken ?? baseConfiguration.accessToken,
             includingNodes: includingNodes,
             excludingNodes: excludingNodes,
-            templatePath: templatePath,
-            destinationPath: destinationPath
+            templatePath: basePath.appending(templatePath ?? "").string,
+            destinationPath: basePath.appending(destinationPath ?? "").string
         )
     }
 }

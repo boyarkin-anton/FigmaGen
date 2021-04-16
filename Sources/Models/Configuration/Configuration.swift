@@ -5,6 +5,7 @@
 //
 
 import Foundation
+import PathKit
 
 struct Configuration: Decodable {
 
@@ -18,15 +19,15 @@ struct Configuration: Decodable {
 
     // MARK: - Instance Methods
 
-    func resolveColorsConfiguration() -> StepConfiguration? {
-        return colors?.resolve(baseConfiguration: base)
+    func resolveColorsConfiguration(with basePath: Path) -> StepConfiguration? {
+        return colors?.resolve(baseConfiguration: base, basePath: basePath)
     }
 
-    func resolveTextStylesConfiguration() -> StepConfiguration? {
-        return textStyles?.resolve(baseConfiguration: base)
+    func resolveTextStylesConfiguration(with basePath: Path) -> StepConfiguration? {
+        return textStyles?.resolve(baseConfiguration: base, basePath: basePath)
     }
 
-    func resolveSpacingsConfiguration() -> StepConfiguration? {
-        return spacings?.resolve(baseConfiguration: base)
+    func resolveSpacingsConfiguration(with basePath: Path) -> StepConfiguration? {
+        return spacings?.resolve(baseConfiguration: base, basePath: basePath)
     }
 }
