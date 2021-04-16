@@ -75,10 +75,6 @@ final class DefaultTextStylesProvider {
             throw TextStylesError.invalidFontFamily(nodeName: node.name, nodeID: node.id)
         }
 
-        guard let fontPostScriptName = nodeTextStyle.fontPostScriptName, !fontPostScriptName.isEmpty else {
-            throw TextStylesError.invalidFontName(nodeName: node.name, nodeID: node.id)
-        }
-
         guard let fontWeight = nodeTextStyle.fontWeight else {
             throw TextStylesError.invalidFontWeight(nodeName: node.name, nodeID: node.id)
         }
@@ -94,7 +90,7 @@ final class DefaultTextStylesProvider {
         return TextStyle(
             name: nodeStyleName,
             fontFamily: fontFamily,
-            fontPostScriptName: fontPostScriptName,
+            fontPostScriptName: nodeTextStyle.fontPostScriptName ?? "",
             fontWeight: fontWeight,
             fontSize: fontSize,
             textColor: textColor,
