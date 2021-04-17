@@ -63,11 +63,11 @@ final class ColorsCommand: Command {
             """
     )
 
-    private let services: ColorsServices
+    private let services: FigmaFileServices & ColorsServices
 
     // MARK: - Initializers
 
-    init(services: ColorsServices) {
+    init(services: FigmaFileServices & ColorsServices) {
         self.services = services
     }
 
@@ -89,7 +89,9 @@ final class ColorsCommand: Command {
         let generator = ColorsGenerator(services: services)
 
         firstly {
-            generator.generateColors(configuration: configuration)
+            try generateFile(configuration: configuration)
+        }.then { file in
+            generator.generateColors(from: file, with: configuration)
         }.done {
             self.success(message: "Color generation completed successfully!")
         }.catch { error in
@@ -98,4 +100,15 @@ final class ColorsCommand: Command {
 
         RunLoop.main.run()
     }
+
+    private func generateFile(configuration: StepConfiguration) throws -> Promise<FigmaFile> {
+        guard
+            let accessToken = configuration.accessToken,
+            let fileKey = configuration.fileKey else {
+            throw FigmaFileError.missingConfiguration
+        }
+
+        return services.makeFileProvider(accessToken: accessToken).fetch(fileKey: fileKey)
+    }
+
 }

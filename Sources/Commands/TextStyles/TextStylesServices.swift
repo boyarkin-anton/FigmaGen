@@ -10,6 +10,6 @@ protocol TextStylesServices {
 
     // MARK: - Instance Methods
 
-    func makeTextStylesProvider(accessToken: String) -> TextStylesProvider
+    func makeTextStylesProvider() -> TextStylesProvider
     func makeTextStylesRenderer() -> TextStylesRenderer
 }

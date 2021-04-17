@@ -19,7 +19,8 @@ figmaGen.commands = [
     ColorsCommand(services: services),
     TextStylesCommand(services: services),
     SpacingsCommand(services: services),
-    GenerateCommand(services: services)
+    GenerateCommand(services: services),
+    DownloadCommand(services: services)
 ]
 
 figmaGen.goAndExitOnError()

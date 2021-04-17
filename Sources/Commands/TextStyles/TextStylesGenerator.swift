@@ -26,24 +26,16 @@ final class TextStylesGenerator {
 
     // MARK: - Instance Methods
 
-    func generateTextStyles(configuration: StepConfiguration) -> Promise<Void> {
-        guard let fileKey = configuration.fileKey, !fileKey.isEmpty else {
-            return Promise(error: ConfigurationError.invalidFileKey)
-        }
-
-        guard let accessToken = configuration.accessToken, !accessToken.isEmpty else {
-            return Promise(error: ConfigurationError.invalidAccessToken)
-        }
-
+    func generateTextStyles(from file: FigmaFile, with configuration: StepConfiguration) -> Promise<Void> {
         let templateType = resolveTemplateType(configuration: configuration)
         let destinationPath = resolveDestinationPath(configuration: configuration)
 
-        let textStylesProvider = services.makeTextStylesProvider(accessToken: accessToken)
+        let textStylesProvider = services.makeTextStylesProvider()
         let textStylesRenderer = services.makeTextStylesRenderer()
 
         return firstly {
             textStylesProvider.fetchTextStyles(
-                fileKey: fileKey,
+                from: file,
                 includingNodes: configuration.includingNodes,
                 excludingNodes: configuration.excludingNodes
             )

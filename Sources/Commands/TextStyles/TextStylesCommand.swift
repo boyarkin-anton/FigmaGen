@@ -63,11 +63,11 @@ final class TextStylesCommand: Command {
             """
     )
 
-    private let services: TextStylesServices
+    private let services: FigmaFileServices & TextStylesServices
 
     // MARK: - Initializers
 
-    init(services: TextStylesServices) {
+    init(services: FigmaFileServices & TextStylesServices) {
         self.services = services
     }
 
@@ -89,7 +89,9 @@ final class TextStylesCommand: Command {
         let generator = TextStylesGenerator(services: services)
 
         firstly {
-            generator.generateTextStyles(configuration: configuration)
+            try generateFile(configuration: configuration)
+        }.then { file in
+            generator.generateTextStyles(from: file, with: configuration)
         }.done {
             self.success(message: "Text styles generation completed successfully!")
         }.catch { error in
@@ -98,4 +100,15 @@ final class TextStylesCommand: Command {
 
         RunLoop.main.run()
     }
+
+    private func generateFile(configuration: StepConfiguration) throws -> Promise<FigmaFile> {
+        guard
+            let accessToken = configuration.accessToken,
+            let fileKey = configuration.fileKey else {
+            throw FigmaFileError.missingConfiguration
+        }
+
+        return services.makeFileProvider(accessToken: accessToken).fetch(fileKey: fileKey)
+    }
+
 }

@@ -10,6 +10,6 @@ protocol SpacingsServices {
 
     // MARK: - Instance Methods
 
-    func makeSpacingsProvider(accessToken: String) -> SpacingsProvider
+    func makeSpacingsProvider() -> SpacingsProvider
     func makeSpacingsRenderer() -> SpacingsRenderer
 }

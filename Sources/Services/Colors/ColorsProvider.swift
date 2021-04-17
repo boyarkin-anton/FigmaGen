@@ -12,7 +12,7 @@ protocol ColorsProvider {
     // MARK: - Instance Methods
 
     func fetchColors(
-        fileKey: String,
+        from file: FigmaFile,
         includingNodes includingNodeIDs: [String]?,
         excludingNodes excludingNodeIDs: [String]?
     ) -> Promise<[Color]>

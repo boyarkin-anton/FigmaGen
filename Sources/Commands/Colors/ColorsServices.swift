@@ -10,6 +10,6 @@ protocol ColorsServices {
 
     // MARK: - Instance Methods
 
-    func makeColorsProvider(accessToken: String) -> ColorsProvider
+    func makeColorsProvider() -> ColorsProvider
     func makeColorsRenderer() -> ColorsRenderer
 }

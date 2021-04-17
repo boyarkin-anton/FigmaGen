@@ -6,4 +6,11 @@
 
 import Foundation
 
-typealias GenerateServices = ColorsServices & TextStylesServices & SpacingsServices
+typealias GenerateServices = FigmaFileServices & ColorsServices & TextStylesServices & SpacingsServices
+
+protocol FigmaFileServices {
+
+    // MARK: - Instance Methods
+
+    func makeFileProvider(accessToken: String) -> FigmaFileProvider
+}

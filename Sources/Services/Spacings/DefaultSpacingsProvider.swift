@@ -11,16 +11,11 @@ final class DefaultSpacingsProvider {
 
     // MARK: - Instance Properties
 
-    let apiProvider: FigmaAPIProvider
     let nodesExtractor: NodesExtractor
 
     // MARK: - Initializers
 
-    init(
-        apiProvider: FigmaAPIProvider,
-        nodesExtractor: NodesExtractor
-    ) {
-        self.apiProvider = apiProvider
+    init(nodesExtractor: NodesExtractor) {
         self.nodesExtractor = nodesExtractor
     }
 
@@ -57,18 +52,22 @@ extension DefaultSpacingsProvider: SpacingsProvider {
     // MARK: - Instance Methods
 
     func fetchSpacings(
-        fileKey: String,
+        from file: FigmaFile,
         includingNodes includingNodeIDs: [String]?,
         excludingNodes excludingNodeIDs: [String]?
     ) -> Promise<[Spacing]> {
-        return firstly {
-            self.apiProvider.request(route: FigmaAPIFileRoute(fileKey: fileKey))
-        }.map(on: DispatchQueue.global(qos: .userInitiated)) { file in
-            try self.extractSpacings(
-                from: file,
-                includingNodes: includingNodeIDs,
-                excludingNodes: excludingNodeIDs
-            )
+        return Promise { seal in
+            DispatchQueue.global(qos: .userInitiated).async {
+                do {
+                    let value = try self.extractSpacings(from: file,
+                                                         includingNodes: includingNodeIDs,
+                                                         excludingNodes: excludingNodeIDs)
+                    seal.fulfill(value)
+                } catch {
+                    seal.reject(error)
+                }
+            }
         }
     }
+
 }

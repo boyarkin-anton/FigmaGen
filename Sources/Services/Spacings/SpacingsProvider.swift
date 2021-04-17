@@ -12,7 +12,7 @@ protocol SpacingsProvider {
     // MARK: - Instance Methods
 
     func fetchSpacings(
-        fileKey: String,
+        from file: FigmaFile,
         includingNodes includingNodeIDs: [String]?,
         excludingNodes excludingNodeIDs: [String]?
     ) -> Promise<[Spacing]>

@@ -24,24 +24,16 @@ final class SpacingsGenerator {
 
     // MARK: - Instance Methods
 
-    func generateSpacings(configuration: StepConfiguration) -> Promise<Void> {
-        guard let fileKey = configuration.fileKey, !fileKey.isEmpty else {
-            return Promise(error: ConfigurationError.invalidFileKey)
-        }
-
-        guard let accessToken = configuration.accessToken, !accessToken.isEmpty else {
-            return Promise(error: ConfigurationError.invalidAccessToken)
-        }
-
+    func generateSpacings(from file: FigmaFile, with configuration: StepConfiguration) -> Promise<Void> {
         let templateType = resolveTemplateType(configuration: configuration)
         let destinationPath = resolveDestinationPath(configuration: configuration)
 
-        let spacingsProvider = services.makeSpacingsProvider(accessToken: accessToken)
+        let spacingsProvider = services.makeSpacingsProvider()
         let spacingsRenderer = services.makeSpacingsRenderer()
 
         return firstly {
             spacingsProvider.fetchSpacings(
-                fileKey: fileKey,
+                from: file,
                 includingNodes: configuration.includingNodes,
                 excludingNodes: configuration.excludingNodes
             )

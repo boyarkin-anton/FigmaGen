@@ -19,15 +19,20 @@ final class Services {
     }
 }
 
+extension Services: FigmaFileServices {
+
+    func makeFileProvider(accessToken: String) -> FigmaFileProvider {
+        return DefaultFigmaFileProvider(apiProvider: makeAPIProvider(accessToken: accessToken))
+    }
+
+}
+
 extension Services: ColorsServices {
 
     // MARK: - Instance Methods
 
-    func makeColorsProvider(accessToken: String) -> ColorsProvider {
-        return DefaultColorsProvider(
-            apiProvider: makeAPIProvider(accessToken: accessToken),
-            nodesExtractor: makeNodesExtractor()
-        )
+    func makeColorsProvider() -> ColorsProvider {
+        return DefaultColorsProvider(nodesExtractor: makeNodesExtractor())
     }
 
     func makeColorsRenderer() -> ColorsRenderer {
@@ -39,11 +44,8 @@ extension Services: TextStylesServices {
 
     // MARK: - Instance Methods
 
-    func makeTextStylesProvider(accessToken: String) -> TextStylesProvider {
-        return DefaultTextStylesProvider(
-            apiProvider: makeAPIProvider(accessToken: accessToken),
-            nodesExtractor: makeNodesExtractor()
-        )
+    func makeTextStylesProvider() -> TextStylesProvider {
+        return DefaultTextStylesProvider(nodesExtractor: makeNodesExtractor())
     }
 
     func makeTextStylesRenderer() -> TextStylesRenderer {
@@ -55,11 +57,8 @@ extension Services: SpacingsServices {
 
     // MARK: - Instance Methods
 
-    func makeSpacingsProvider(accessToken: String) -> SpacingsProvider {
-        DefaultSpacingsProvider(
-            apiProvider: makeAPIProvider(accessToken: accessToken),
-            nodesExtractor: makeNodesExtractor()
-        )
+    func makeSpacingsProvider() -> SpacingsProvider {
+        DefaultSpacingsProvider(nodesExtractor: makeNodesExtractor())
     }
 
     func makeSpacingsRenderer() -> SpacingsRenderer {

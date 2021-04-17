@@ -1,14 +1,16 @@
 //
-// FigmaGen
-// Copyright © 2019 HeadHunter
-// MIT Licence
+//  Downloader.swift
+//  
+//
+//  Created by Anton Boyarkin on 16.04.2021.
 //
 
 import Foundation
 import PromiseKit
 import Alamofire
+import PathKit
 
-final class DefaultFigmaAPIProvider {
+final class Downloader {
 
     // MARK: - Nested Types
 
@@ -52,13 +54,32 @@ final class DefaultFigmaAPIProvider {
             )
         }
     }
-}
 
-extension DefaultFigmaAPIProvider: FigmaAPIProvider {
+    func download(fileKey: String, to path: Path) -> Promise<Void> {
+        let backgroundQueue = DispatchQueue.global(qos: .background)
+        
+        return firstly {
+            Guarantee()
+        }.then(on: backgroundQueue) {
+            self.fetch(route: FigmaAPIFileRoute(fileKey: fileKey))
+        }.then(on: backgroundQueue) { data in
+            self.save(data, to: path)
+        }
+    }
 
-    // MARK: - Instance Methods
+    func download(route: FigmaAPIFileRoute) -> Promise<FigmaFile> {
+        let backgroundQueue = DispatchQueue.global(qos: .background)
+        
+        return firstly {
+            Guarantee()
+        }.then(on: backgroundQueue) {
+            self.fetch(route: route)
+        }.then(on: backgroundQueue) { data in
+            self.decode(data, to: route)
+        }
+    }
 
-    func request<Route: FigmaAPIRoute>(route: Route) -> Promise<Route.Response> {
+    func fetch(route: FigmaAPIFileRoute) -> Promise<Data> {
         let url = Constants.serverBaseURL
             .appendingPathComponent(route.apiVersion.urlPath)
             .appendingPathComponent(route.urlPath)
@@ -76,7 +97,7 @@ extension DefaultFigmaAPIProvider: FigmaAPIProvider {
                 headers: httpHeaders
             )
             .validate()
-            .responseDecodable(of: Route.Response.self, decoder: responseDecoder) { response in
+            .responseData { response in
                 switch response.result {
                 case let .failure(error):
                     seal.reject(error)
@@ -87,74 +108,28 @@ extension DefaultFigmaAPIProvider: FigmaAPIProvider {
             }
         }
     }
-}
 
-extension DateFormatter {
-
-    // MARK: - Type Properties
-    static func figmaAPI(withMilliseconds: Bool) -> DateFormatter {
-        let dateFormatter = DateFormatter()
-
-        dateFormatter.locale = Locale(identifier: "en_US_POSIX")
-        dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
-
-        if withMilliseconds {
-            dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'"
-        } else {
-            dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss'Z'"
+    func decode<Route: FigmaAPIRoute>(_ data: Data, to route: Route) -> Promise<Route.Response> {
+        return Promise { seal in
+            do {
+                let value = try responseDecoder.decode(Route.Response.self, from: data)
+                seal.fulfill(value)
+            } catch {
+                seal.reject(error)
+            }
         }
-
-        return dateFormatter
-    }
-}
-
-protocol FigmaFileProvider {
-
-    // MARK: - Instance Methods
-
-    func fetch(fileKey: String) -> Promise<FigmaFile>
-}
-
-final class DefaultFigmaFileProvider {
-
-    // MARK: - Instance Properties
-
-    let apiProvider: FigmaAPIProvider
-
-    // MARK: - Initializers
-
-    init(apiProvider: FigmaAPIProvider) {
-        self.apiProvider = apiProvider
     }
 
-}
-
-// MARK: - Instance Methods
-
-extension DefaultFigmaFileProvider: FigmaFileProvider {
-
-    func fetch(fileKey: String) -> Promise<FigmaFile> {
-        return firstly {
-            self.apiProvider.request(route: FigmaAPIFileRoute(fileKey: fileKey))
-        }.map(on: DispatchQueue.global(qos: .userInitiated)) { file in
-            file
+    func save(_ data: Data, to path: Path) -> Promise<Void> {
+        let destinationPath = path.appending("figma.json")
+        let rendered = String(decoding: data, as: UTF8.self)
+        do {
+            try destinationPath.write(rendered, encoding: .utf8)
+            return .value(Void())
+        } catch {
+            return .init(error: error)
         }
     }
 
 }
 
-enum FigmaFileError: Error {
-
-    // MARK: - Enumeration Cases
-
-    case missingConfiguration
-
-    // MARK: - Instance Properties
-
-    var description: String {
-        switch self {
-        case .missingConfiguration:
-            return #"Missing Figma File or Access key in configuration file"#
-        }
-    }
-}

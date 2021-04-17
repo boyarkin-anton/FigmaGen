@@ -63,11 +63,11 @@ final class SpacingsCommand: Command {
             """
     )
 
-    private let services: SpacingsServices
+    private let services: FigmaFileServices & SpacingsServices
 
     // MARK: - Initializers
 
-    init(services: SpacingsServices) {
+    init(services: FigmaFileServices & SpacingsServices) {
         self.services = services
     }
 
@@ -89,7 +89,9 @@ final class SpacingsCommand: Command {
         let generator = SpacingsGenerator(services: services)
 
         firstly {
-            generator.generateSpacings(configuration: configuration)
+            try generateFile(configuration: configuration)
+        }.then { file in
+            generator.generateSpacings(from: file, with: configuration)
         }.done {
             self.success(message: "Spacings generation completed successfully!")
         }.catch { error in
@@ -98,4 +100,15 @@ final class SpacingsCommand: Command {
 
         RunLoop.main.run()
     }
+
+    private func generateFile(configuration: StepConfiguration) throws -> Promise<FigmaFile> {
+        guard
+            let accessToken = configuration.accessToken,
+            let fileKey = configuration.fileKey else {
+            throw FigmaFileError.missingConfiguration
+        }
+
+        return services.makeFileProvider(accessToken: accessToken).fetch(fileKey: fileKey)
+    }
+
 }

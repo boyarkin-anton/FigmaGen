@@ -26,24 +26,16 @@ final class ColorsGenerator {
 
     // MARK: - Instance Methods
 
-    func generateColors(configuration: StepConfiguration) -> Promise<Void> {
-        guard let fileKey = configuration.fileKey, !fileKey.isEmpty else {
-            return Promise(error: ConfigurationError.invalidFileKey)
-        }
-
-        guard let accessToken = configuration.accessToken, !accessToken.isEmpty else {
-            return Promise(error: ConfigurationError.invalidAccessToken)
-        }
-
+    func generateColors(from file: FigmaFile, with configuration: StepConfiguration) -> Promise<Void> {
         let templateType = resolveTemplateType(configuration: configuration)
         let destinationPath = resolveDestinationPath(configuration: configuration)
 
-        let colorsProvider = services.makeColorsProvider(accessToken: accessToken)
+        let colorsProvider = services.makeColorsProvider()
         let colorsRenderer = services.makeColorsRenderer()
 
         return firstly {
             colorsProvider.fetchColors(
-                fileKey: fileKey,
+                from: file,
                 includingNodes: configuration.includingNodes,
                 excludingNodes: configuration.excludingNodes
             )

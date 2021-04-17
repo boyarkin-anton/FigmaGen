@@ -12,7 +12,7 @@ protocol TextStylesProvider {
     // MARK: - Instance Methods
 
     func fetchTextStyles(
-        fileKey: String,
+        from file: FigmaFile,
         includingNodes includingNodeIDs: [String]?,
         excludingNodes excludingNodeIDs: [String]?
     ) -> Promise<[TextStyle]>
