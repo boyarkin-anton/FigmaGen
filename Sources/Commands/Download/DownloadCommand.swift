@@ -46,7 +46,7 @@ final class DownloadCommand: Command {
         let configurationPath = Path(self.configurationPath.value ?? Constants.defaultConfigurationPath)
         let configuration = try YAMLDecoder().decode(Configuration.self, from: configurationPath.read())
         let basePath = configurationPath.parent()
-        
+
         guard let accessToken = configuration.base?.accessToken else {
             throw FigmaFileError.missingConfiguration
         }

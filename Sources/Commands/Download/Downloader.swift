@@ -57,7 +57,7 @@ final class Downloader {
 
     func download(fileKey: String, to path: Path) -> Promise<Void> {
         let backgroundQueue = DispatchQueue.global(qos: .background)
-        
+
         return firstly {
             Guarantee()
         }.then(on: backgroundQueue) {
@@ -69,7 +69,7 @@ final class Downloader {
 
     func download(route: FigmaAPIFileRoute) -> Promise<FigmaFile> {
         let backgroundQueue = DispatchQueue.global(qos: .background)
-        
+
         return firstly {
             Guarantee()
         }.then(on: backgroundQueue) {
@@ -132,4 +132,3 @@ final class Downloader {
     }
 
 }
-

@@ -56,7 +56,7 @@ final class GenerateCommand: Command {
 
         firstly {
             Guarantee()
-        }.then{
+        }.then {
 //            self.generateFile(configuration: configuration)
             Downloader(accessToken: accessToken).download(route: FigmaAPIFileRoute(fileKey: fileKey))
         }.done { file in
@@ -126,7 +126,7 @@ final class FigmaFileGenerator {
     init(services: FigmaFileServices) {
         self.services = services
     }
-    
+
     func generateFile(configuration: Configuration) -> Promise<FigmaFile> {
         guard let accessToken = configuration.base?.accessToken else {
             return .init(error: FigmaFileError.missingConfiguration)
