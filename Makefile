@@ -24,6 +24,9 @@ version:
 	@echo $(PRODUCT_VERSION)
 
 build:
+	swift build --disable-sandbox -c release
+
+unversal_build:
 	swift build --disable-sandbox -c release --arch arm64 --arch x86_64
 
 install: build
