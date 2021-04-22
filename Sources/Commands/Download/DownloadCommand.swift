@@ -47,16 +47,8 @@ final class DownloadCommand: Command {
         let configuration = try YAMLDecoder().decode(Configuration.self, from: configurationPath.read())
         let basePath = configurationPath.parent()
 
-        guard let accessToken = configuration.base?.accessToken else {
-            throw FigmaFileError.missingConfiguration
-        }
-
-        guard let fileKey = configuration.base?.fileKey else {
-            throw FigmaFileError.missingConfiguration
-        }
-
         let promises = [
-            Downloader(accessToken: accessToken).download(fileKey: fileKey, to: basePath)
+            try Downloader(with: configuration).download(to: basePath)
         ]
 
         firstly {

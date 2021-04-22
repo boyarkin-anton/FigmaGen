@@ -24,19 +24,23 @@ final class SpacingsGenerator {
 
     // MARK: - Instance Methods
 
-    func generateSpacings(from file: FigmaFile, with configuration: StepConfiguration) -> Promise<Void> {
+    func generateSpacings(from files: [FigmaFile], with configuration: StepConfiguration) -> Promise<Void> {
         let templateType = resolveTemplateType(configuration: configuration)
         let destinationPath = resolveDestinationPath(configuration: configuration)
 
         let spacingsProvider = services.makeSpacingsProvider()
         let spacingsRenderer = services.makeSpacingsRenderer()
 
-        return firstly {
+        let fetches = files.map { file in
             spacingsProvider.fetchSpacings(
                 from: file,
                 includingNodes: configuration.includingNodes,
                 excludingNodes: configuration.excludingNodes
             )
+        }
+        
+        return when(fulfilled: fetches).then { results -> Promise<[Spacing]> in
+            return Promise.value(results.flatMap { $0 })
         }.map { spacings in
             try spacingsRenderer.renderTemplate(
                 templateType,

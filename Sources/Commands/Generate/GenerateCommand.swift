@@ -46,21 +46,25 @@ final class GenerateCommand: Command {
         let configuration = try YAMLDecoder().decode(Configuration.self, from: configurationPath.read())
         let basePath = configurationPath.parent()
 
-        guard let accessToken = configuration.base?.accessToken else {
-            throw FigmaFileError.missingConfiguration
-        }
-
         guard let fileKey = configuration.base?.fileKey else {
             throw FigmaFileError.missingConfiguration
         }
 
+        let ids = [
+            configuration.colors?.includingNodes ?? [],
+            configuration.spacings?.includingNodes ?? [],
+            configuration.textStyles?.includingNodes ?? []
+        ].flatMap { $0 }
+
         firstly {
             Guarantee()
         }.then {
-//            self.generateFile(configuration: configuration)
-            Downloader(accessToken: accessToken).download(route: FigmaAPIFileRoute(fileKey: fileKey))
-        }.done { file in
-            self.extract(from: file, configuration: configuration, basePath: basePath)
+            try Downloader(with: configuration)
+                .download(route: FigmaAPINodesFileRouter(fileKey: fileKey,
+                                                         ids: ids.isEmpty ? nil : ids))
+        }.done { container in
+            let nodes = container.nodes.map { $0.value }
+            self.extract(from: nodes, configuration: configuration, basePath: basePath)
         }.catch { error in
             self.fail(error: error)
         }
@@ -68,11 +72,11 @@ final class GenerateCommand: Command {
         RunLoop.main.run()
     }
 
-    private func extract(from file: FigmaFile, configuration: Configuration, basePath: Path) {
+    private func extract(from nodes: [FigmaFile], configuration: Configuration, basePath: Path) {
         let promises = [
-            generateColorsIfNeeded(from: file, configuration: configuration, basePath: basePath),
-            generateTextStylesIfNeeded(from: file, configuration: configuration, basePath: basePath),
-            generateSpacingsIfNeeded(from: file, configuration: configuration, basePath: basePath)
+            generateColorsIfNeeded(from: nodes, configuration: configuration, basePath: basePath),
+            generateTextStylesIfNeeded(from: nodes, configuration: configuration, basePath: basePath),
+            generateSpacingsIfNeeded(from: nodes, configuration: configuration, basePath: basePath)
         ]
 
         firstly {
@@ -90,28 +94,28 @@ final class GenerateCommand: Command {
         return FigmaFileGenerator(services: services).generateFile(configuration: configuration)
     }
 
-    private func generateColorsIfNeeded(from file: FigmaFile, configuration: Configuration, basePath: Path) -> Promise<Void> {
+    private func generateColorsIfNeeded(from files: [FigmaFile], configuration: Configuration, basePath: Path) -> Promise<Void> {
         guard let colorsConfiguration = configuration.resolveColorsConfiguration(with: basePath) else {
             return .value(Void())
         }
 
-        return ColorsGenerator(services: services).generateColors(from: file, with: colorsConfiguration)
+        return ColorsGenerator(services: services).generateColors(from: files, with: colorsConfiguration)
     }
 
-    private func generateTextStylesIfNeeded(from file: FigmaFile, configuration: Configuration, basePath: Path) -> Promise<Void> {
+    private func generateTextStylesIfNeeded(from files: [FigmaFile], configuration: Configuration, basePath: Path) -> Promise<Void> {
         guard let textStylesConfiguration = configuration.resolveTextStylesConfiguration(with: basePath) else {
             return .value(Void())
         }
 
-        return TextStylesGenerator(services: services).generateTextStyles(from: file, with: textStylesConfiguration)
+        return TextStylesGenerator(services: services).generateTextStyles(from: files, with: textStylesConfiguration)
     }
 
-    private func generateSpacingsIfNeeded(from file: FigmaFile, configuration: Configuration, basePath: Path) -> Promise<Void> {
+    private func generateSpacingsIfNeeded(from files: [FigmaFile], configuration: Configuration, basePath: Path) -> Promise<Void> {
         guard let spacingsConfiguration = configuration.resolveSpacingsConfiguration(with: basePath) else {
             return .value(Void())
         }
 
-        return SpacingsGenerator(services: services).generateSpacings(from: file, with: spacingsConfiguration)
+        return SpacingsGenerator(services: services).generateSpacings(from: files, with: spacingsConfiguration)
     }
 }
 

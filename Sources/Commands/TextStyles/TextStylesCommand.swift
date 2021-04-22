@@ -91,7 +91,7 @@ final class TextStylesCommand: Command {
         firstly {
             try generateFile(configuration: configuration)
         }.then { file in
-            generator.generateTextStyles(from: file, with: configuration)
+            generator.generateTextStyles(from: [file], with: configuration)
         }.done {
             self.success(message: "Text styles generation completed successfully!")
         }.catch { error in

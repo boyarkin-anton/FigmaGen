@@ -1,17 +1,18 @@
 //
-// FigmaGen
-// Copyright © 2019 HeadHunter
-// MIT Licence
+//  FigmaAPINodesFileRouter.swift
+//  
+//
+//  Created by Anton Boyarkin on 22.04.2021.
 //
 
 import Foundation
 
 /// Route to fetch the document refered to by key.
-struct FigmaAPIFileRoute: FigmaAPIRoute {
+struct FigmaAPINodesFileRouter: FigmaAPIRoute {
 
     // MARK: - Nested Types
 
-    typealias Response = FigmaFile
+    typealias Response = FigmaNodeContainerFile
 
     struct Parameters: Encodable {
         let version: String?
@@ -29,7 +30,8 @@ struct FigmaAPIFileRoute: FigmaAPIRoute {
 
     /// Route URL path.
     var urlPath: String {
-        "files/\(fileKey)"
+        let isNodeLoad = parameters.ids != nil
+        return "files/\(fileKey)" + (isNodeLoad ? "/nodes" : "")
     }
 
     // MARK: - Initializers

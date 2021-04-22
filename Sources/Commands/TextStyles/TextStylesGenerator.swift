@@ -26,19 +26,23 @@ final class TextStylesGenerator {
 
     // MARK: - Instance Methods
 
-    func generateTextStyles(from file: FigmaFile, with configuration: StepConfiguration) -> Promise<Void> {
+    func generateTextStyles(from files: [FigmaFile], with configuration: StepConfiguration) -> Promise<Void> {
         let templateType = resolveTemplateType(configuration: configuration)
         let destinationPath = resolveDestinationPath(configuration: configuration)
 
         let textStylesProvider = services.makeTextStylesProvider()
         let textStylesRenderer = services.makeTextStylesRenderer()
 
-        return firstly {
+        let fetches = files.map { file in
             textStylesProvider.fetchTextStyles(
                 from: file,
                 includingNodes: configuration.includingNodes,
                 excludingNodes: configuration.excludingNodes
             )
+        }
+        
+        return when(fulfilled: fetches).then { results -> Promise<[TextStyle]> in
+            return Promise.value(results.flatMap { $0 })
         }.map { textStyles in
             try textStylesRenderer.renderTemplate(
                 templateType,

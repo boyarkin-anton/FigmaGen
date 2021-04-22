@@ -6,6 +6,27 @@
 
 import Foundation
 
+struct FigmaNodeContainerFile: Decodable, Hashable {
+    
+    // MARK: - Nested Types
+
+    private enum CodingKeys: String, CodingKey {
+        case version
+        case lastModified
+        case nodes
+        case name
+        case role
+        case thumbnailUrl
+    }
+
+    let version: String?
+    let lastModified: Date?
+    let nodes: [String: FigmaFile]
+    let name: String?
+    let role: String?
+    let thumbnailUrl: String?
+}
+
 /// File node.
 struct FigmaFile: Decodable, Hashable {
 
@@ -25,16 +46,16 @@ struct FigmaFile: Decodable, Hashable {
     // MARK: - Instance Properties
 
     /// File name.
-    let name: String
+    let name: String?
 
     /// Last modified date of the file.
-    let lastModified: Date
+    let lastModified: Date?
 
     /// Thumbnail image URL.
-    let thumbnailURL: URL
+    let thumbnailURL: URL?
 
     /// Version of the file.
-    let version: String
+    let version: String?
 
     /// Version of the file schema.
     let schemaVersion: Int

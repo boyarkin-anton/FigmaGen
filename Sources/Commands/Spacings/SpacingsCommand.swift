@@ -91,7 +91,7 @@ final class SpacingsCommand: Command {
         firstly {
             try generateFile(configuration: configuration)
         }.then { file in
-            generator.generateSpacings(from: file, with: configuration)
+            generator.generateSpacings(from: [file], with: configuration)
         }.done {
             self.success(message: "Spacings generation completed successfully!")
         }.catch { error in

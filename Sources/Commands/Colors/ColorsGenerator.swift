@@ -26,19 +26,23 @@ final class ColorsGenerator {
 
     // MARK: - Instance Methods
 
-    func generateColors(from file: FigmaFile, with configuration: StepConfiguration) -> Promise<Void> {
+    func generateColors(from files: [FigmaFile], with configuration: StepConfiguration) -> Promise<Void> {
         let templateType = resolveTemplateType(configuration: configuration)
         let destinationPath = resolveDestinationPath(configuration: configuration)
 
         let colorsProvider = services.makeColorsProvider()
         let colorsRenderer = services.makeColorsRenderer()
 
-        return firstly {
+        let fetches = files.map { file in
             colorsProvider.fetchColors(
                 from: file,
                 includingNodes: configuration.includingNodes,
                 excludingNodes: configuration.excludingNodes
             )
+        }
+        
+        return when(fulfilled: fetches).then { results -> Promise<[Color]> in
+            return Promise.value(results.flatMap { $0 })
         }.map { colors in
             try colorsRenderer.renderTemplate(
                 templateType,

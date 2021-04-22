@@ -91,7 +91,7 @@ final class ColorsCommand: Command {
         firstly {
             try generateFile(configuration: configuration)
         }.then { file in
-            generator.generateColors(from: file, with: configuration)
+            generator.generateColors(from: [file], with: configuration)
         }.done {
             self.success(message: "Color generation completed successfully!")
         }.catch { error in

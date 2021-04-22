@@ -24,14 +24,14 @@ final class Downloader {
     private let alamofireSession: Alamofire.Session
     private let responseDecoder: JSONDecoder
 
-    // MARK: -
+    // MARK: - Private Properties
 
-    private let accessToken: String
+    private let configuration: Configuration
 
     // MARK: - Initializers
 
-    init(accessToken: String) {
-        self.accessToken = accessToken
+    init(with configuration: Configuration) {
+        self.configuration = configuration
 
         alamofireSession = Alamofire.Session()
         responseDecoder = JSONDecoder()
@@ -55,31 +55,39 @@ final class Downloader {
         }
     }
 
-    func download(fileKey: String, to path: Path) -> Promise<Void> {
+    func download(to path: Path) throws -> Promise<Void> {
+        guard let fileKey = configuration.base?.fileKey else {
+            throw FigmaFileError.missingConfiguration
+        }
+
         let backgroundQueue = DispatchQueue.global(qos: .background)
 
         return firstly {
             Guarantee()
         }.then(on: backgroundQueue) {
-            self.fetch(route: FigmaAPIFileRoute(fileKey: fileKey))
+            try self.fetch(route: FigmaAPIFileRoute(fileKey: fileKey))
         }.then(on: backgroundQueue) { data in
             self.save(data, to: path)
         }
     }
 
-    func download(route: FigmaAPIFileRoute) -> Promise<FigmaFile> {
+    func download<T: FigmaAPIRoute>(route: T) throws -> Promise<T.Response> {
         let backgroundQueue = DispatchQueue.global(qos: .background)
 
         return firstly {
             Guarantee()
         }.then(on: backgroundQueue) {
-            self.fetch(route: route)
+            try self.fetch(route: route)
         }.then(on: backgroundQueue) { data in
             self.decode(data, to: route)
         }
     }
 
-    func fetch(route: FigmaAPIFileRoute) -> Promise<Data> {
+    func fetch<T: FigmaAPIRoute>(route: T) throws -> Promise<Data> {
+        guard let accessToken = configuration.base?.accessToken else {
+            throw FigmaFileError.missingConfiguration
+        }
+
         let url = Constants.serverBaseURL
             .appendingPathComponent(route.apiVersion.urlPath)
             .appendingPathComponent(route.urlPath)
