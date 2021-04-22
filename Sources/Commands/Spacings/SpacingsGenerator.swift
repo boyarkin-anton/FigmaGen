@@ -39,8 +39,13 @@ final class SpacingsGenerator {
             )
         }
         
+        let processor = NameProcessor(validateRegexp: configuration.nameValidateRegexp,
+                                      replaceRegexp: configuration.nameReplaceRegexp)
+
         return when(fulfilled: fetches).then { results -> Promise<[Spacing]> in
-            return Promise.value(results.flatMap { $0 })
+            return Promise.value(results.flatMap { $0 }.compactMap {
+                return Spacing(name: processor.process($0.name, style: .camelCase), value: $0.value)
+            })
         }.map { spacings in
             try spacingsRenderer.renderTemplate(
                 templateType,

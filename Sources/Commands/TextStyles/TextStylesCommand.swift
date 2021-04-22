@@ -83,7 +83,9 @@ final class TextStylesCommand: Command {
             includingNodes: includingNodeIDs,
             excludingNodes: excludingNodeIDs,
             templatePath: self.templatePath.value,
-            destinationPath: self.destinationPath.value
+            destinationPath: self.destinationPath.value,
+            nameValidateRegexp: nil,
+            nameReplaceRegexp: nil
         )
 
         let generator = TextStylesGenerator(services: services)

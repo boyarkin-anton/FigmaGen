@@ -41,8 +41,19 @@ final class ColorsGenerator {
             )
         }
         
+        let processor = NameProcessor(validateRegexp: configuration.nameValidateRegexp,
+                                      replaceRegexp: configuration.nameReplaceRegexp)
+
         return when(fulfilled: fetches).then { results -> Promise<[Color]> in
-            return Promise.value(results.flatMap { $0 })
+            return Promise.value(results.flatMap { $0 }.compactMap {
+                guard let name = $0.name else { return nil }
+
+                return Color(name: processor.process(name, style: .camelCase),
+                             red: $0.red,
+                             green: $0.green,
+                             blue: $0.blue,
+                             alpha: $0.alpha)
+            })
         }.map { colors in
             try colorsRenderer.renderTemplate(
                 templateType,

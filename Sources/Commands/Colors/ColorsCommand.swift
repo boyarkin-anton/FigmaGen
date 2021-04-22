@@ -83,7 +83,9 @@ final class ColorsCommand: Command {
             includingNodes: includingNodeIDs,
             excludingNodes: excludingNodeIDs,
             templatePath: templatePath.value,
-            destinationPath: destinationPath.value
+            destinationPath: destinationPath.value,
+            nameValidateRegexp: nil,
+            nameReplaceRegexp: nil
         )
 
         let generator = ColorsGenerator(services: services)

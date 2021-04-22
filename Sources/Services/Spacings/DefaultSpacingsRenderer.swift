@@ -15,7 +15,7 @@ final class DefaultSpacingsRenderer {
     private func makeContext(with spacings: [Spacing]) -> [String: Any] {
         let spacings = spacings.map { spacing in
             return [
-                "name": spacing.name.replacingOccurrences(of: "/", with: "_"),
+                "name": spacing.name,
                 "value": spacing.value
             ]
         }

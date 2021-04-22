@@ -40,9 +40,23 @@ final class TextStylesGenerator {
                 excludingNodes: configuration.excludingNodes
             )
         }
-        
+
+        let processor = NameProcessor(validateRegexp: configuration.nameValidateRegexp,
+                                      replaceRegexp: configuration.nameReplaceRegexp)
+
         return when(fulfilled: fetches).then { results -> Promise<[TextStyle]> in
-            return Promise.value(results.flatMap { $0 })
+            return Promise.value(results.flatMap { $0 }.compactMap {
+                return TextStyle(name: processor.process($0.name, style: .camelCase),
+                                 fontFamily: $0.fontFamily,
+                                 fontPostScriptName: $0.fontPostScriptName,
+                                 fontWeight: $0.fontWeight,
+                                 fontSize: $0.fontSize,
+                                 textColor: $0.textColor,
+                                 paragraphSpacing: $0.paragraphSpacing,
+                                 paragraphIndent: $0.paragraphIndent,
+                                 lineHeight: $0.lineHeight,
+                                 letterSpacing: $0.letterSpacing)
+            })
         }.map { textStyles in
             try textStylesRenderer.renderTemplate(
                 templateType,

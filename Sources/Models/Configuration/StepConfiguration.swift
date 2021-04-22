@@ -17,6 +17,8 @@ struct StepConfiguration: Decodable {
     let excludingNodes: [String]?
     let templatePath: String?
     let destinationPath: String?
+    let nameValidateRegexp: String?
+    let nameReplaceRegexp: String?
 
     // MARK: - Instance Methods
 
@@ -31,7 +33,9 @@ struct StepConfiguration: Decodable {
             includingNodes: includingNodes,
             excludingNodes: excludingNodes,
             templatePath: basePath.appending(templatePath ?? "").string,
-            destinationPath: basePath.appending(destinationPath ?? "").string
+            destinationPath: basePath.appending(destinationPath ?? "").string,
+            nameValidateRegexp: nameValidateRegexp,
+            nameReplaceRegexp: nameReplaceRegexp
         )
     }
 }
