@@ -46,10 +46,12 @@ final class TextStylesGenerator {
 
         return when(fulfilled: fetches).then { results -> Promise<[TextStyle]> in
             return Promise.value(results.flatMap { $0 }.compactMap {
-                return TextStyle(name: processor.process($0.name, style: .camelCase),
+                return TextStyle(isSystemFont: $0.isSystemFont,
+                                 name: processor.process($0.name, style: .camelCase),
                                  fontFamily: $0.fontFamily,
                                  fontPostScriptName: $0.fontPostScriptName,
                                  fontWeight: $0.fontWeight,
+                                 fontWeightType: $0.fontWeightType,
                                  fontSize: $0.fontSize,
                                  textColor: $0.textColor,
                                  paragraphSpacing: $0.paragraphSpacing,

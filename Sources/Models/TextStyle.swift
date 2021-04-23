@@ -10,11 +10,14 @@ struct TextStyle: Hashable {
 
     // MARK: - Instance Properties
 
+    let isSystemFont: Bool
+
     let name: String
 
     let fontFamily: String
     let fontPostScriptName: String
     let fontWeight: Double
+    let fontWeightType: FontWeightType
     let fontSize: Double
 
     let textColor: Color
