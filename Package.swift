@@ -20,7 +20,8 @@ let package = Package(
         .package(url: "https://github.com/kylef/Stencil.git", from: "0.13.0"),
         .package(url: "https://github.com/SwiftGen/StencilSwiftKit.git", from: "2.7.2"),
         .package(url: "https://github.com/Alamofire/Alamofire.git", from: "5.4.0"),
-        .package(url: "https://github.com/mxcl/PromiseKit.git", from: "6.8.0")
+        .package(url: "https://github.com/mxcl/PromiseKit.git", from: "6.8.0"),
+        .package(url: "https://github.com/apple/swift-log.git", from: "1.4.0"),
     ],
     targets: [
         .target(
@@ -33,7 +34,8 @@ let package = Package(
                 "Stencil",
                 "StencilSwiftKit",
                 "Alamofire",
-                "PromiseKit"
+                "PromiseKit",
+                .product(name: "Logging", package: "swift-log")
             ],
             path: "Sources"
         ),
