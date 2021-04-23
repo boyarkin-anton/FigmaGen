@@ -38,7 +38,9 @@ final class DefaultTextStylesRenderer {
             "fontPostScriptName": textStyle.fontPostScriptName,
             "fontWeight": "\(textStyle.fontWeight)",
             "fontSize": "\(textStyle.fontSize)",
-            "textColor": mapColor(textStyle.textColor)
+            "textColor": mapColor(textStyle.textColor),
+            "isSystemFont": textStyle.isSystemFont,
+            "fontWeightType": textStyle.fontWeightType.rawValue
         ]
 
         if let paragraphSpacing = textStyle.paragraphSpacing {
