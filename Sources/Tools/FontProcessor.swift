@@ -49,7 +49,7 @@ final class FontProcessor {
     private let node: FigmaNode
     private let styles: [String: FigmaStyle]
 
-    private let logger = Logger(label: "FigmaGen")
+    private let logger = Logger(label: "FontProcessor")
 
     // MARK: - Initialization
 
@@ -57,7 +57,7 @@ final class FontProcessor {
         self.node = node
         self.styles = styles
     }
-    
+
     func extract() -> TextStyle? {
         guard
             case let .text(info: nodeInfo, payload: textNodePayload) = node.type,
@@ -104,11 +104,13 @@ final class FontProcessor {
             logger.warning("\(TextStylesError.invalidFontName(nodeName: node.name, nodeID: node.id).description)")
         }
 
+        let fontName = nodeTextStyle.fontPostScriptName ?? fontFamily
+
         return TextStyle(
-            isSystemFont: isSystem(nodeTextStyle.fontPostScriptName ?? fontFamily),
+            isSystemFont: isSystem(fontName),
             name: nodeStyleName,
             fontFamily: fontFamily,
-            fontPostScriptName: nodeTextStyle.fontPostScriptName ?? "",
+            fontPostScriptName: fontName,
             fontWeight: fontWeight,
             fontWeightType: FontWeightType.from(fontWeight),
             fontSize: fontSize,
