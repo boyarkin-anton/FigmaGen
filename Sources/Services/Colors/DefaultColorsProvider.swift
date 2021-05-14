@@ -6,7 +6,6 @@
 
 import Foundation
 import PromiseKit
-import Logging
 
 final class DefaultColorsProvider {
 
@@ -28,12 +27,12 @@ final class DefaultColorsProvider {
         }
 
         guard let nodeStyle = styles[nodeStyleID] else {
-            Logger(label: "ColorsProvider").error("\(ColorsError.styleNotFound(nodeName: node.name, nodeID: node.id))")
+            Logger.default.error("\(ColorsError.styleNotFound(nodeName: node.name, nodeID: node.id))")
             return nil
         }
 
         guard let nodeStyleName = nodeStyle.name, !nodeStyleName.isEmpty else {
-            Logger(label: "ColorsProvider").error("\(ColorsError.invalidStyleName(nodeName: node.name, nodeID: node.id))")
+            Logger.default.error("\(ColorsError.invalidStyleName(nodeName: node.name, nodeID: node.id))")
             return nil
         }
 
@@ -47,7 +46,7 @@ final class DefaultColorsProvider {
         }
 
         guard let nodeFillColor = nodeFill.color else {
-            Logger(label: "ColorsProvider").error("\(ColorsError.colorNotFound(nodeName: node.name, nodeID: node.id))")
+            Logger.default.error("\(ColorsError.colorNotFound(nodeName: node.name, nodeID: node.id))")
             return nil
         }
 

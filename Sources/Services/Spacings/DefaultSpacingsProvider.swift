@@ -6,7 +6,6 @@
 
 import Foundation
 import PromiseKit
-import Logging
 
 final class DefaultSpacingsProvider {
 
@@ -27,11 +26,11 @@ final class DefaultSpacingsProvider {
             return nil
         }
         guard !node.name.isEmpty else {
-            Logger(label: "SpacingsProvider").error("\(SpacingsError.invalidSpacingName(nodeName: node.name, nodeID: node.id))")
+            Logger.default.error("\(SpacingsError.invalidSpacingName(nodeName: node.name, nodeID: node.id))")
             return nil
         }
         guard let value = nodeInfo.absoluteBoundingBox.height else {
-            Logger(label: "SpacingsProvider").error("\(SpacingsError.spacingNotFound(nodeName: node.name, nodeID: node.id))")
+            Logger.default.error("\(SpacingsError.spacingNotFound(nodeName: node.name, nodeID: node.id))")
             return nil
         }
         return Spacing(name: node.name, value: value)

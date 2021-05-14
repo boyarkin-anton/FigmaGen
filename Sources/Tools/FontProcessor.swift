@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import Logging
 
 enum FontWeightType: String {
     case black
@@ -49,7 +48,7 @@ final class FontProcessor {
     private let node: FigmaNode
     private let styles: [String: FigmaStyle]
 
-    private let logger = Logger(label: "FontProcessor")
+    private let logger = Logger.default
 
     // MARK: - Initialization
 
@@ -66,42 +65,42 @@ final class FontProcessor {
         }
 
         guard let nodeStyle = styles[nodeStyleID], nodeStyle.type == .text  else {
-            logger.error("\(TextStylesError.styleNotFound(nodeName: node.name, nodeID: node.id).description)")
+            logger.error(TextStylesError.styleNotFound(nodeName: node.name, nodeID: node.id).description)
             return nil
         }
 
         guard let nodeStyleName = nodeStyle.name, !nodeStyleName.isEmpty else {
-            logger.error("\(TextStylesError.invalidStyleName(nodeName: node.name, nodeID: node.id).description)")
+            logger.error(TextStylesError.invalidStyleName(nodeName: node.name, nodeID: node.id).description)
             return nil
         }
 
         guard let nodeTextStyle = textNodePayload.style else {
-            logger.error("\(TextStylesError.textStyleNotFound(nodeName: node.name, nodeID: node.id).description)")
+            logger.error(TextStylesError.textStyleNotFound(nodeName: node.name, nodeID: node.id).description)
             return nil
         }
 
         guard let fontFamily = nodeTextStyle.fontFamily, !fontFamily.isEmpty else {
-            logger.error("\(TextStylesError.invalidFontFamily(nodeName: node.name, nodeID: node.id).description)")
+            logger.error(TextStylesError.invalidFontFamily(nodeName: node.name, nodeID: node.id).description)
             return nil
         }
 
         guard let fontWeight = nodeTextStyle.fontWeight else {
-            logger.error("\(TextStylesError.invalidFontWeight(nodeName: node.name, nodeID: node.id).description)")
+            logger.error(TextStylesError.invalidFontWeight(nodeName: node.name, nodeID: node.id).description)
             return nil
         }
 
         guard let fontSize = nodeTextStyle.fontSize else {
-            logger.error("\(TextStylesError.invalidFontSize(nodeName: node.name, nodeID: node.id).description)")
+            logger.error(TextStylesError.invalidFontSize(nodeName: node.name, nodeID: node.id).description)
             return nil
         }
 
         guard let textColor = extractTextColor(from: nodeInfo, styles: styles) else {
-            logger.error("\(TextStylesError.invalidTextColor(nodeName: node.name, nodeID: node.id).description)")
+            logger.error(TextStylesError.invalidTextColor(nodeName: node.name, nodeID: node.id).description)
             return nil
         }
 
         if nodeTextStyle.fontPostScriptName == nil {
-            logger.warning("\(TextStylesError.invalidFontName(nodeName: node.name, nodeID: node.id).description)")
+            logger.warning(TextStylesError.invalidFontName(nodeName: node.name, nodeID: node.id).description)
         }
 
         let fontName = nodeTextStyle.fontPostScriptName ?? fontFamily
