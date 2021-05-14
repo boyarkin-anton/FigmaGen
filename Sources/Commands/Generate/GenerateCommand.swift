@@ -23,13 +23,15 @@ final class GenerateCommand: Command {
     let name = "generate"
     let shortDescription = "Generates code from Figma files using a configuration file."
 
-    let configurationPath = Key<String>(
-        "--config",
-        description: """
-            Path to the configuration file.
-            Defaults to '\(Constants.defaultConfigurationPath)'.
-            """
-    )
+    @Key("-c", "--config",
+         description: """
+             Path to the configuration file.
+             Defaults to '\(Constants.defaultConfigurationPath)'.
+             """)
+    var configurationPath: String?
+
+    @Flag("-l", "--lint", description: "Lint only option")
+    var isLint: Bool
 
     private let services: GenerateServices
 
@@ -42,7 +44,7 @@ final class GenerateCommand: Command {
     // MARK: - Instance Methods
 
     func execute() throws {
-        let configurationPath = Path(self.configurationPath.value ?? Constants.defaultConfigurationPath)
+        let configurationPath = Path(self.configurationPath ?? Constants.defaultConfigurationPath)
         let configuration = try YAMLDecoder().decode(Configuration.self, from: configurationPath.read())
         let basePath = configurationPath.parent()
 
@@ -100,6 +102,7 @@ final class GenerateCommand: Command {
         }
 
         return ColorsProcessor().extract(from: files, with: colorsConfiguration).then { items -> Promise<Void> in
+            guard !self.isLint else { return .value(Void()) }
             return ColorsProcessor().render(items, with: colorsConfiguration)
         }
     }
@@ -110,6 +113,7 @@ final class GenerateCommand: Command {
         }
 
         return TextStylesProcessor().extract(from: files, with: textStylesConfiguration).then { items -> Promise<Void> in
+            guard !self.isLint else { return .value(Void()) }
             return TextStylesProcessor().render(items, with: textStylesConfiguration)
         }
     }
@@ -120,6 +124,7 @@ final class GenerateCommand: Command {
         }
         
         return SpacingsProcessor().extract(from: files, with: spacingsConfiguration).then { items -> Promise<Void> in
+            guard !self.isLint else { return .value(Void()) }
             return SpacingsProcessor().render(items, with: spacingsConfiguration)
         }
     }
