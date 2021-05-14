@@ -75,14 +75,12 @@ final class GenerateCommand: Command {
     }
 
     private func extract(from nodes: [FigmaFile], configuration: Configuration, basePath: Path) {
-        let promises = [
-            generateColorsIfNeeded(from: nodes, configuration: configuration, basePath: basePath),
-            generateTextStylesIfNeeded(from: nodes, configuration: configuration, basePath: basePath),
-            generateSpacingsIfNeeded(from: nodes, configuration: configuration, basePath: basePath)
-        ]
+        Logger.default.info("Extract figma data")
 
-        firstly {
-            when(fulfilled: promises)
+        generateColorsIfNeeded(from: nodes, configuration: configuration, basePath: basePath).then {
+            self.generateTextStylesIfNeeded(from: nodes, configuration: configuration, basePath: basePath)
+        }.then {
+            self.generateSpacingsIfNeeded(from: nodes, configuration: configuration, basePath: basePath)
         }.done {
             self.success(message: "Generation completed successfully!")
         }.catch { error in

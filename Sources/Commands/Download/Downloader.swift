@@ -88,6 +88,8 @@ final class Downloader {
             throw FigmaFileError.missingConfiguration
         }
 
+        Logger.default.info("Load figma data")
+
         let url = Constants.serverBaseURL
             .appendingPathComponent(route.apiVersion.urlPath)
             .appendingPathComponent(route.urlPath)
@@ -111,6 +113,7 @@ final class Downloader {
                     seal.reject(error)
 
                 case let .success(value):
+                    Logger.default.success("Figma data loaded")
                     seal.fulfill(value)
                 }
             }

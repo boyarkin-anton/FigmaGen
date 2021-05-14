@@ -18,6 +18,8 @@ final class ColorsProcessor: ItemProcessor {
     // MARK: - Internal Methods
 
     func extract(from files: [FigmaFile], with configuration: StepConfiguration) -> Promise<[Color]> {
+        Logger.default.info("Start color extraction")
+
         let provider = DefaultColorsProvider(nodesExtractor: DefaultNodesExtractor())
 
         let fetches = files.map { file in
@@ -32,7 +34,11 @@ final class ColorsProcessor: ItemProcessor {
                                       replaceRegexp: configuration.nameReplaceRegexp)
 
         return when(fulfilled: fetches).then { results -> Promise<[Color]> in
-            return Promise.value(results.flatMap { $0 }.compactMap {
+            let colors = results.flatMap { $0 }
+
+            Logger.default.info("Found \(colors.count) colors")
+
+            let processed: [Color] = colors.compactMap {
                 guard let name = $0.name else { return nil }
 
                 return Color(name: processor.process(name, style: .camelCase),
@@ -40,11 +46,17 @@ final class ColorsProcessor: ItemProcessor {
                              green: $0.green,
                              blue: $0.blue,
                              alpha: $0.alpha)
-            })
+            }
+
+            Logger.default.success("Complete color extraction")
+
+            return Promise.value(processed)
         }
     }
 
     func render(_ items: [Color], with configuration: StepConfiguration) -> Promise<Void> {
+        Logger.default.info("Start color generation")
+
         let templateType = resolveTemplateType(configuration: configuration)
         let destinationPath = resolveDestinationPath(configuration: configuration)
 
@@ -56,6 +68,9 @@ final class ColorsProcessor: ItemProcessor {
                 to: destinationPath,
                 colors: items
             )
+
+            Logger.default.success("Complete color generation")
+
             return .value(Void())
         } catch {
             return .init(error: error)

@@ -18,6 +18,8 @@ final class SpacingsProcessor: ItemProcessor {
     // MARK: - Internal Methods
 
     func extract(from files: [FigmaFile], with configuration: StepConfiguration) -> Promise<[Spacing]> {
+        Logger.default.info("Start spacings extraction")
+
         let provider = DefaultSpacingsProvider(nodesExtractor: DefaultNodesExtractor())
 
         let fetches = files.map { file in
@@ -32,13 +34,23 @@ final class SpacingsProcessor: ItemProcessor {
                                       replaceRegexp: configuration.nameReplaceRegexp)
 
         return when(fulfilled: fetches).then { results -> Promise<[Spacing]> in
-            return Promise.value(results.flatMap { $0 }.compactMap {
+            let items = results.flatMap { $0 }
+
+            Logger.default.info("Found \(items.count) spacings")
+
+            let processed: [Spacing] = items.compactMap {
                 return Spacing(name: processor.process($0.name, style: .camelCase), value: $0.value)
-            })
+            }
+
+            Logger.default.success("Complete spacings extraction")
+
+            return Promise.value(processed)
         }
     }
 
     func render(_ items: [Spacing], with configuration: StepConfiguration) -> Promise<Void> {
+        Logger.default.info("Start spacings generation")
+
         let templateType = resolveTemplateType(configuration: configuration)
         let destinationPath = resolveDestinationPath(configuration: configuration)
 
@@ -50,6 +62,9 @@ final class SpacingsProcessor: ItemProcessor {
                 to: destinationPath,
                 spacings: items
             )
+
+            Logger.default.success("Complete spacings generation")
+
             return .value(Void())
         } catch {
             return .init(error: error)
