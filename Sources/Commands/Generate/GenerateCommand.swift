@@ -99,7 +99,9 @@ final class GenerateCommand: Command {
             return .value(Void())
         }
 
-        return ColorsGenerator(services: services).generateColors(from: files, with: colorsConfiguration)
+        return ColorsProcessor().extract(from: files, with: colorsConfiguration).then { items -> Promise<Void> in
+            return ColorsProcessor().render(items, with: colorsConfiguration)
+        }
     }
 
     private func generateTextStylesIfNeeded(from files: [FigmaFile], configuration: Configuration, basePath: Path) -> Promise<Void> {
@@ -107,15 +109,19 @@ final class GenerateCommand: Command {
             return .value(Void())
         }
 
-        return TextStylesGenerator(services: services).generateTextStyles(from: files, with: textStylesConfiguration)
+        return TextStylesProcessor().extract(from: files, with: textStylesConfiguration).then { items -> Promise<Void> in
+            return TextStylesProcessor().render(items, with: textStylesConfiguration)
+        }
     }
 
     private func generateSpacingsIfNeeded(from files: [FigmaFile], configuration: Configuration, basePath: Path) -> Promise<Void> {
         guard let spacingsConfiguration = configuration.resolveSpacingsConfiguration(with: basePath) else {
             return .value(Void())
         }
-
-        return SpacingsGenerator(services: services).generateSpacings(from: files, with: spacingsConfiguration)
+        
+        return SpacingsProcessor().extract(from: files, with: spacingsConfiguration).then { items -> Promise<Void> in
+            return SpacingsProcessor().render(items, with: spacingsConfiguration)
+        }
     }
 }
 
